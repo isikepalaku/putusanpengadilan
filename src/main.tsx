@@ -1,17 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import App from './App.tsx'
-import { AuthCallback } from './components/Auth/AuthCallback.tsx'
+import App from './App'
 import './index.css'
+import { AuthProvider } from './context/AuthContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="*" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>,
 )

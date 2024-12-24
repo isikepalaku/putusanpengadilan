@@ -1,20 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AppContent } from './components/AppContent';
 import { AppProvider } from './providers/AppProvider';
 import { AuthProvider } from './context/AuthContext';
-import { LoginForm } from './components/Auth/LoginForm';
 import { AuthCallback } from './components/Auth/AuthCallback';
-import { useAuth } from './context/AuthContext';
-
-function AuthenticatedApp() {
-  const { user } = useAuth();
-
-  if (!user) {
-    return <LoginForm />;
-  }
-
-  return <AppContent />;
-}
+import { AuthenticatedApp } from './components/Auth/AuthenticatedApp';
 
 export default function App() {
   return (

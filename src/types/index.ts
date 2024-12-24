@@ -5,7 +5,8 @@ export interface DocumentMetadata {
   hukuman_penjara: string | null;
   hukuman_denda: string | null;
   kronologis_singkat: string | null;
-  file_url: string | null;
+  file_url?: string | null;
+  link_gdrive?: string | null;
 }
 
 export interface LegalDocument {
@@ -16,7 +17,8 @@ export interface LegalDocument {
   dateAdded: string;
   tags: string[];
   file_path: string;
-  file_url: string;
+  file_url?: string;
+  link_gdrive?: string;
   metadata: DocumentMetadata;
 }
 

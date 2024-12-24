@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { LegalDocument } from '../types';
 import { Download, Copy, X } from 'lucide-react';
 
@@ -15,10 +15,9 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Check both metadata.file_url and direct file_url
-    const fileUrl = document.metadata?.file_url || document.file_url;
-    if (fileUrl) {
-      window.open(fileUrl, '_blank');
+    if (document.link_gdrive) {
+      console.log('Opening link:', document.link_gdrive);
+      window.open(document.link_gdrive, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -32,31 +31,28 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
     }
   };
 
-  const showDownloadButton = document.metadata?.file_url || document.file_url;
-
   return (
     <>
       <div
         onClick={() => setIsModalOpen(true)}
         className="p-4 md:p-6 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors relative"
       >
-        {/* Move badges to the bottom on mobile, top-right on desktop */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
             <h3 className="text-lg md:text-xl font-semibold text-white">
               {document.title || document.metadata?.nomor_putusan || 'Untitled Document'}
             </h3>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-blue-600 text-sm text-white rounded-full whitespace-nowrap">
+              <span className="px-2 py-1 bg-blue-600/80 text-sm text-white rounded-md">
                 {document.category}
               </span>
               <span 
-                className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                className={`px-2 py-1 text-sm text-white rounded-md ${
                   relevanceScore >= 80 
-                    ? 'bg-green-600 text-white' 
+                    ? 'bg-green-600/80' 
                     : relevanceScore >= 60 
-                      ? 'bg-yellow-600 text-white'
-                      : 'bg-red-600 text-white'
+                      ? 'bg-yellow-600/80'
+                      : 'bg-red-600/80'
                 }`}
                 title="Relevance Score"
               >
@@ -82,7 +78,7 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
             {document.metadata && (
               <div className="text-sm text-gray-400 space-y-1">
                 {Object.entries(document.metadata).map(([key, value]) => {
-                  if (key === 'file_url' || !value || key === 'kronologis_singkat') return null;
+                  if (key === 'link_gdrive' || !value || key === 'kronologis_singkat') return null;
                   
                   const formattedKey = key
                     .split('_')
@@ -113,7 +109,6 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
         </div>
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-start justify-center p-4 sm:items-center">
           <div className="bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
@@ -130,15 +125,13 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
               </h2>
 
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
-                {showDownloadButton && (
-                  <button
-                    onClick={handleDownload}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span className="whitespace-nowrap">Download Document</span>
-                  </button>
-                )}
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="whitespace-nowrap">Download Document</span>
+                </button>
                 <button
                   onClick={handleCopy}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
@@ -150,7 +143,7 @@ export function DocumentCard({ document, matchedSegments, relevanceScore }: Docu
 
               <div className="space-y-4">
                 {document.metadata && Object.entries(document.metadata).map(([key, value]) => {
-                  if (key === 'file_url' || !value) return null;
+                  if (key === 'link_gdrive' || !value) return null;
                   
                   const formattedKey = key
                     .split('_')

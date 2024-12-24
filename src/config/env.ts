@@ -3,9 +3,9 @@ import { z } from 'zod';
 const envSchema = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_ANON_KEY: z.string(),
-  VITE_OPENAI_API_KEY: z.string(),
+  VITE_OPENAI_API_KEY: z.string().optional(),
   VITE_SITE_URL: z.string().url().optional(),
-  VITE_GOOGLE_CLIENT_ID: z.string()
+  VITE_GOOGLE_CLIENT_ID: z.string().optional()
 });
 
 function getBaseUrl(): string {
@@ -18,9 +18,9 @@ function getBaseUrl(): string {
 interface EnvType {
   supabaseUrl: string;
   supabaseAnonKey: string;
-  openaiApiKey: string;
+  openaiApiKey?: string;
   siteUrl: string;
-  googleClientId: string;
+  googleClientId?: string;
 }
 
 try {
@@ -46,7 +46,11 @@ try {
 export const env: EnvType = {
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-  openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY as string,
   siteUrl: getBaseUrl(),
-  googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string
+  ...(import.meta.env.VITE_OPENAI_API_KEY && {
+    openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY
+  }),
+  ...(import.meta.env.VITE_GOOGLE_CLIENT_ID && {
+    googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID
+  })
 };

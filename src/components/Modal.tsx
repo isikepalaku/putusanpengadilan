@@ -1,4 +1,3 @@
-import React from 'react';
 import { LegalDocument } from '../types';
 
 interface ModalProps {

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function LoadingCard() {
   return (
     <div className="p-6 bg-gray-800 rounded-lg animate-pulse">

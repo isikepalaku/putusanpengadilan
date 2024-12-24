@@ -24,6 +24,10 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!env.googleClientId) {
+      return; // Don't load Google Sign-In if client ID is not available
+    }
+
     // Load Google Identity Services script
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
@@ -56,7 +60,10 @@ export function LoginForm() {
     };
 
     return () => {
-      document.body.removeChild(script);
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
@@ -114,7 +121,9 @@ export function LoginForm() {
         )}
 
         <div className="space-y-6">
-          <div id="googleButton" className="flex justify-center"></div>
+          {env.googleClientId && (
+            <div id="googleButton" className="flex justify-center"></div>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

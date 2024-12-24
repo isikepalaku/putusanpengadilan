@@ -9,8 +9,13 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Verify the lib directory exists
-RUN ls -la src/lib/
+# Debug: List contents
+RUN echo "Listing root directory:" && \
+    ls -la && \
+    echo "Listing src directory:" && \
+    ls -la src && \
+    echo "Listing src/lib directory:" && \
+    ls -la src/lib
 
 # Set environment variables
 ARG VITE_OPENAI_API_KEY

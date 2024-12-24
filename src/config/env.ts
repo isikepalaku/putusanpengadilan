@@ -1,52 +1,52 @@
 import { z } from 'zod';
 
-const urlSchema = z.string()
-  .min(1, 'URL is required')
-  .refine(
-    (url) => url.startsWith('http://') || url.startsWith('https://'),
-    'URL must start with http:// or https://'
-  );
-
 const envSchema = z.object({
-  openai: z.object({
-    apiKey: z.string().min(1, 'OpenAI API key is required'),
-    baseUrl: urlSchema,
-  }),
-  qdrant: z.object({
-    url: urlSchema,
-    apiKey: z.string().min(1, 'Qdrant API key is required'),
-  }),
+  VITE_SUPABASE_URL: z.string().url(),
+  VITE_SUPABASE_ANON_KEY: z.string(),
+  VITE_OPENAI_API_KEY: z.string(),
+  VITE_SITE_URL: z.string().url().optional(),
+  VITE_GOOGLE_CLIENT_ID: z.string()
 });
 
-type EnvConfig = z.infer<typeof envSchema>;
-
-function validateEnvVars(): EnvConfig {
-  const config = {
-    openai: {
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY ?? '',
-      baseUrl: import.meta.env.VITE_OPENAI_API_BASE_URL ?? '',
-    },
-    qdrant: {
-      url: import.meta.env.VITE_QDRANT_URL ?? '',
-      apiKey: import.meta.env.VITE_QDRANT_API_KEY ?? '',
-    },
-  };
-
-  try {
-    return envSchema.parse(config);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const issues = error.issues.map(issue => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
-      throw new Error(
-        'Environment configuration error:\n' +
-        issues + '\n\n' +
-        'Please ensure your .env file contains valid values:\n' +
-        '- VITE_QDRANT_URL must start with http:// or https://\n' +
-        '- VITE_OPENAI_API_BASE_URL must start with http:// or https://'
-      );
-    }
-    throw error;
+function getBaseUrl(): string {
+  if (import.meta.env.VITE_SITE_URL) {
+    return import.meta.env.VITE_SITE_URL;
   }
+  return typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5086';
 }
 
-export const config = validateEnvVars();
+interface EnvType {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+  openaiApiKey: string;
+  siteUrl: string;
+  googleClientId: string;
+}
+
+try {
+  const config = {
+    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+    VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    VITE_OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY,
+    VITE_SITE_URL: import.meta.env.VITE_SITE_URL,
+    VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID
+  };
+  
+  envSchema.parse(config);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    const issues = error.issues.map((issue: z.ZodIssue) => 
+      `${issue.path.join('.')}: ${issue.message}`
+    ).join('\n');
+    throw new Error(`Invalid environment variables:\n${issues}`);
+  }
+  throw error;
+}
+
+export const env: EnvType = {
+  supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,
+  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+  openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY as string,
+  siteUrl: getBaseUrl(),
+  googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string
+};

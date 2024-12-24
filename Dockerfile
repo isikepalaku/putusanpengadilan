@@ -9,6 +9,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Verify the lib directory exists
+RUN ls -la src/lib/
+
 # Set environment variables
 ARG VITE_OPENAI_API_KEY
 ARG VITE_SUPABASE_URL 

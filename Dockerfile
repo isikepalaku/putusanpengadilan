@@ -1,22 +1,32 @@
-# Use Node.js LTS version
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies first (for better caching)
+# Copy package files and install dependencies
 COPY package*.json ./
-COPY tsconfig*.json ./
 RUN npm install
 
-# Copy the rest of the application
+# Copy source code
 COPY . .
 
-# Build the application
+# Set environment variables
+ARG VITE_OPENAI_API_KEY
+ARG VITE_SUPABASE_URL 
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_SUPABASE_SERVICE_KEY
+ARG VITE_SITE_URL
+ARG VITE_GOOGLE_CLIENT_ID
+
+ENV VITE_OPENAI_API_KEY=$VITE_OPENAI_API_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_SERVICE_KEY=$VITE_SUPABASE_SERVICE_KEY
+ENV VITE_SITE_URL=$VITE_SITE_URL
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
+# Build app
 RUN npm run build
 
-# Expose the port the app runs on
 EXPOSE 5086
 
-# Start the application in development mode
-CMD ["npm", "run", "dev", "--", "--host", "--port", "5086"]
+CMD ["npm", "run", "preview"]

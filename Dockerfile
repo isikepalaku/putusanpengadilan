@@ -5,12 +5,13 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy source code
+# Copy source files
 COPY . .
+
+# Install Supabase client if missing
+RUN npm install @supabase/supabase-js
 
 # Build the application
 RUN npm run build
@@ -18,10 +19,10 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
-# Copy the build output
+# Copy build output to nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy a basic nginx config
+# Add nginx config for SPA
 RUN echo 'server { \
   listen 80; \
   location / { \

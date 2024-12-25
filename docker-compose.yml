@@ -1,12 +1,9 @@
-version: '3.8'
-
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    image: node:20-alpine
+    working_dir: /app
     ports:
-      - "5173:5173"
+      - "5086:5086"
     volumes:
       - .:/app
       - /app/node_modules
@@ -16,4 +13,4 @@ services:
       - VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}
       - VITE_SITE_URL=${VITE_SITE_URL}
       - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
-    command: npm run dev -- --host
+    command: sh -c "npm install && npm run dev -- --host --port 5086"

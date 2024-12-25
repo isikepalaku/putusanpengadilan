@@ -115,6 +115,18 @@ async function searchDocuments(embedding: number[], matchThreshold = 0.3, matchC
   }
 }
 
+interface SearchResult {
+  id: number;
+  content: string;
+  metadata: {
+    title?: string;
+    category?: string;
+    dateAdded?: string;
+    tags?: string[];
+  };
+  similarity: number;
+}
+
 // Search endpoint
 app.post('/api/search', async (req, res) => {
   try {
@@ -126,7 +138,7 @@ app.post('/api/search', async (req, res) => {
 
     console.log('Processing search query:', query);
     const embedding = await generateEmbedding(query);
-    const results = await searchDocuments(embedding);
+    const results = await searchDocuments(embedding) as SearchResult[];
     
     // Map results and highlight matched segments
     const formattedResults = results.map(row => {
@@ -138,9 +150,9 @@ app.post('/api/search', async (req, res) => {
       const searchPattern = new RegExp(`(.{0,50})(${queryTerms.join('|')})(.{0,50})`, 'gi');
       
       // Find matches in the content
-      const matches = Array.from(content.matchAll(searchPattern));
+      const matches = [...content.matchAll(searchPattern)];
       const matchedSegments = matches.map(match => {
-        const [, before, term, after] = match;
+        const [, before = '', term = '', after = ''] = match;
         return `...${before}<mark class="bg-yellow-200 text-black">${term}</mark>${after}...`;
       });
 

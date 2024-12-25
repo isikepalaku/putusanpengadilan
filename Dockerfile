@@ -1,40 +1,35 @@
-FROM node:20-alpine
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Debug: List contents
-RUN echo "Listing root directory:" && \
-    ls -la && \
-    echo "Listing src directory:" && \
-    ls -la src && \
-    echo "Listing src/lib directory:" && \
-    ls -la src/lib
-
-# Set environment variables
-ARG VITE_OPENAI_API_KEY
-ARG VITE_SUPABASE_URL 
-ARG VITE_SUPABASE_ANON_KEY
-ARG VITE_SUPABASE_SERVICE_KEY
-ARG VITE_SITE_URL
-ARG VITE_GOOGLE_CLIENT_ID
-
-ENV VITE_OPENAI_API_KEY=$VITE_OPENAI_API_KEY
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
-ENV VITE_SUPABASE_SERVICE_KEY=$VITE_SUPABASE_SERVICE_KEY
-ENV VITE_SITE_URL=$VITE_SITE_URL
-ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
-
-# Build app
+# Build the application
 RUN npm run build
 
-EXPOSE 5086
+# Production stage
+FROM nginx:alpine
 
-CMD ["npm", "run", "preview"]
+# Copy the build output
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy a basic nginx config
+RUN echo 'server { \
+  listen 80; \
+  location / { \
+    root /usr/share/nginx/html; \
+    try_files $uri $uri/ /index.html; \
+  } \
+}' > /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

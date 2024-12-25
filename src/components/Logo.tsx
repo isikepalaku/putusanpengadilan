@@ -6,7 +6,7 @@ export function Logo() {
       <div className="relative w-16 h-16">
         <img 
           src={logo} 
-          alt="Logo" 
+          alt="Mesin pencari putusan pengadilan" 
           className="w-full h-full object-contain drop-shadow-lg" 
         />
       </div>

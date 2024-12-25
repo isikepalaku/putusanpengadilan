@@ -24,7 +24,7 @@ interface EnvType {
 }
 
 try {
-  const config = {
+  const rawConfig = {
     VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
     VITE_OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY,
@@ -32,7 +32,7 @@ try {
     VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID
   };
   
-  envSchema.parse(config);
+  envSchema.parse(rawConfig);
 } catch (error) {
   if (error instanceof z.ZodError) {
     const issues = error.issues.map((issue: z.ZodIssue) => 
@@ -42,6 +42,23 @@ try {
   }
   throw error;
 }
+
+export const config = {
+  openai: {
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY as string,
+    baseUrl: 'https://api.openai.com/v1'
+  },
+  supabase: {
+    url: import.meta.env.VITE_SUPABASE_URL as string,
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+  },
+  site: {
+    url: getBaseUrl()
+  },
+  google: {
+    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID as string
+  }
+};
 
 export const env: EnvType = {
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,

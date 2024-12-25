@@ -2,20 +2,17 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files first for better caching
 COPY package*.json ./
 RUN npm install
 
-# Copy the entire project
+# Copy all source files
 COPY . .
-
-# Copy supabase config specifically
-COPY src/lib/supabase.ts ./src/lib/
 
 # Build the application
 RUN npm run build
 
-# Production stage
+# Production stage with Nginx
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 RUN echo 'server { \

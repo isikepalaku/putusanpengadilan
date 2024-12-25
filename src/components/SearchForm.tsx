@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
-import { Search, X } from 'lucide-react';
+import { ArrowUp, X } from 'lucide-react';
 
 interface SearchFormProps {
   onSearch: (query: string) => void;
@@ -11,12 +11,13 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [query, setQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-adjust height based on content
+  // Auto-adjust height based on content with a smaller maximum height
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
+      const newHeight = Math.min(textarea.scrollHeight, 100); // Reduced maximum height to 100px
+      textarea.style.height = `${newHeight}px`;
     }
   }, [query]);
 
@@ -33,7 +34,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       if (query.trim()) {
         onSearch(query);
       }
-    } else if (e.key === 'Enter' && e.shiftKey && e.ctrlKey) {
+    } else if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       const start = e.currentTarget.selectionStart;
       const end = e.currentTarget.selectionEnd;
@@ -53,89 +54,59 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-3xl">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Masukkan kronologi singkat..."
-            className="w-full px-3 py-2 pr-12 rounded-lg bg-gray-800 text-white placeholder-gray-400 
-                     focus:outline-none focus:ring-2 focus:ring-blue-500
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     min-h-[42px] max-h-[200px] resize-none
-                     overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent
-                     hover:scrollbar-thumb-gray-500"
-            disabled={isLoading}
-            style={{ 
-              lineHeight: '1.5',
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgb(75 85 99) transparent'
-            }}
-          />
-          
-          {/* Mobile search/clear buttons */}
-          <div className="absolute right-2 top-2 flex flex-col gap-1.5 sm:hidden">
-            <button
-              type="submit"
-              disabled={isLoading || !query.trim()}
-              className="text-gray-400 hover:text-white focus:outline-none p-1 disabled:opacity-50
-                       bg-gray-800/50 rounded-md hover:bg-gray-700/50"
-            >
-              {isLoading ? (
-                <LoadingSpinner size="sm" color="white" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-            </button>
-            {query && !isLoading && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="text-gray-400 hover:text-white focus:outline-none p-1
-                         bg-gray-800/50 rounded-md hover:bg-gray-700/50"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl sticky top-2 z-10 mb-6">
+      <div className="relative flex flex-col bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+        <textarea
+          ref={textareaRef}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Masukkan kronologi singkat..."
+          className="w-full px-4 py-2 pr-14 rounded-lg bg-transparent text-white placeholder-gray-400 
+                   focus:outline-none focus:ring-0
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   min-h-[42px] max-h-[100px] resize-none
+                   overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent
+                   hover:scrollbar-thumb-gray-500 text-sm"
+          disabled={isLoading}
+          style={{ 
+            lineHeight: '1.5',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgb(75 85 99) transparent'
+          }}
+        />
+        
+        {/* Clear button */}
+        {query && !isLoading && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="absolute right-12 top-2 text-gray-400 
+                     hover:text-white focus:outline-none p-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
 
-          {/* Desktop clear button */}
-          {query && !isLoading && (
-            <button
-              type="button"
-              onClick={handleReset}
-              className="hidden sm:block absolute right-3 top-2 text-gray-400 
-                       hover:text-white focus:outline-none p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Desktop search button */}
+        {/* Submit button */}
         <button
           type="submit"
-          className="hidden sm:flex px-3 py-1.5 bg-blue-600 text-white rounded-lg font-medium 
-                   hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   items-center gap-1.5 justify-center self-start text-sm"
           disabled={isLoading || !query.trim()}
+          className="absolute right-3 bottom-1.5 text-gray-400 hover:text-white focus:outline-none
+                   p-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-orange-500
+                   transition-colors duration-200"
         >
           {isLoading ? (
-            <>
-              <LoadingSpinner size="sm" color="white" />
-              <span>Searching...</span>
-            </>
+            <LoadingSpinner size="sm" color="white" />
           ) : (
-            <>
-              <Search className="w-3.5 h-3.5" />
-              <span>Search</span>
-            </>
+            <ArrowUp className="w-4 h-4 text-white" />
           )}
         </button>
+      </div>
+      
+      {/* Optional helper text */}
+      <div className="mt-1 text-xs text-gray-400 text-center">
+        Press Enter to submit, Shift + Enter for new line
       </div>
     </form>
   );

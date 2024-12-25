@@ -16,7 +16,7 @@ export function Logo() {
             Pencarian
           </span>{' '}
           <span className="text-white">
-            Putusan Pengadilan
+            Dokumen Hukum
           </span>
         </h1>
         <p className="text-sm md:text-base font-medium text-gray-400 tracking-wide">

@@ -1,28 +1,23 @@
-# Build stage
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy source files
+# Copy the entire project
 COPY . .
 
-# Install Supabase client if missing
-RUN npm install @supabase/supabase-js
+# Copy supabase config specifically
+COPY src/lib/supabase.ts ./src/lib/
 
 # Build the application
 RUN npm run build
 
 # Production stage
 FROM nginx:alpine
-
-# Copy build output to nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Add nginx config for SPA
 RUN echo 'server { \
   listen 80; \
   location / { \
@@ -32,5 +27,4 @@ RUN echo 'server { \
 }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]

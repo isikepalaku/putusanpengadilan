@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 
 interface MorphingTextProps {
   texts: string[];
@@ -24,22 +23,16 @@ export default function MorphingText({ texts, className = '' }: MorphingTextProp
 
   return (
     <div className={`relative h-[40px] ${className}`}>
-      <AnimatePresence mode="wait">
-        {isVisible && (
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="absolute w-full text-center"
-          >
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-              {texts[currentIndex]}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isVisible && (
+        <div
+          key={currentIndex}
+          className="absolute w-full text-center animate-morphing"
+        >
+          <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            {texts[currentIndex]}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -53,8 +53,17 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+      keyframes: {
+        morphing: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        }
+      },
+      animation: {
+        morphing: 'morphing 0.2s ease-in-out'
+      }
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 }

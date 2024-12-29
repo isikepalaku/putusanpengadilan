@@ -81,7 +81,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           <button
             type="button"
             onClick={handleReset}
-            className="absolute right-12 top-2 text-gray-400 
+            className="absolute right-3 top-2 text-gray-400 
                      hover:text-white focus:outline-none p-1"
           >
             <X className="w-4 h-4" />

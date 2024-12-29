@@ -68,7 +68,8 @@ export const searchLawDocuments = async (query: string): Promise<SearchResult[]>
       for (let i = 0; i < content.length - windowSize; i += 50) {
         const window = content.substring(i, i + windowSize);
         const matchScore = searchTerms.reduce((score, term) => {
-          const regex = new RegExp(term, 'g');
+          const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(escapedTerm, 'g');
           const matches = window.match(regex);
           return score + (matches ? matches.length : 0);
         }, 0);
@@ -84,7 +85,8 @@ export const searchLawDocuments = async (query: string): Promise<SearchResult[]>
         : doc.content.substring(0, windowSize);
 
       const highlightedSegment = searchTerms.reduce((text, term) => {
-        const regex = new RegExp(`(${term})`, 'gi');
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedTerm})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
       }, matchedSegment);
 

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
-import { ArrowUp, X } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 
 interface SearchFormProps {
   onSearch: (query: string) => void;
@@ -11,20 +10,26 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [query, setQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-adjust height based on content with a smaller maximum height
-  useEffect(() => {
+  const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      const newHeight = Math.min(textarea.scrollHeight, 100); // Reduced maximum height to 100px
-      textarea.style.height = `${newHeight}px`;
+      textarea.style.height = `${Math.max(42, textarea.scrollHeight)}px`;
     }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
   }, [query]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      onSearch(query);
+      onSearch(query.trim());
+      setQuery(''); // Clear text after search
+      if (textareaRef.current) {
+        textareaRef.current.style.height = '42px'; // Reset height
+      }
     }
   };
 
@@ -32,81 +37,78 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
       e.preventDefault();
       if (query.trim()) {
-        onSearch(query);
-      }
-    } else if (e.key === 'Enter' && e.shiftKey) {
-      e.preventDefault();
-      const start = e.currentTarget.selectionStart;
-      const end = e.currentTarget.selectionEnd;
-      setQuery(query.substring(0, start) + '\n' + query.substring(end));
-      setTimeout(() => {
+        onSearch(query.trim());
+        setQuery(''); // Clear text after search
         if (textareaRef.current) {
-          textareaRef.current.selectionStart = start + 1;
-          textareaRef.current.selectionEnd = start + 1;
+          textareaRef.current.style.height = '42px'; // Reset height
         }
-      }, 0);
+      }
     }
   };
 
   const handleReset = () => {
     setQuery('');
     onSearch('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '42px'; // Reset height
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl sticky top-2 z-10 mb-6">
-      <div className="relative flex flex-col bg-gray-800 rounded-lg shadow-lg border border-gray-700">
-        <textarea
-          ref={textareaRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Masukkan kronologi singkat..."
-          className="w-full px-4 py-2 pr-14 rounded-lg bg-transparent text-white placeholder-gray-400 
-                   focus:outline-none focus:ring-0
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   min-h-[42px] max-h-[100px] resize-none
-                   overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent
-                   hover:scrollbar-thumb-gray-500 text-sm"
-          disabled={isLoading}
-          style={{ 
-            lineHeight: '1.5',
-            scrollbarWidth: 'thin',
-            scrollbarColor: 'rgb(75 85 99) transparent'
-          }}
-        />
-        
-        {/* Clear button */}
-        {query && !isLoading && (
-          <button
-            type="button"
-            onClick={handleReset}
-            className="absolute right-3 top-2 text-gray-400 
-                     hover:text-white focus:outline-none p-1"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
+      <div className="relative">
+        <div className="relative w-full flex items-center bg-neutral-900/95 border border-neutral-700/50 shadow-sm px-3 gap-3 rounded-xl transition-all duration-200 hover:border-neutral-600 focus-within:border-neutral-600 focus-within:ring-2 focus-within:ring-neutral-500/30 overflow-hidden">
+          <textarea
+            ref={textareaRef}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              adjustTextareaHeight();
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Masukkan kronologi singkat..."
+            disabled={isLoading}
+            rows={1}
+            className="w-full py-2 pr-20 pl-0 min-h-[42px] bg-transparent border-0 text-base text-white placeholder:text-neutral-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+          />
 
-        {/* Submit button */}
-        <button
-          type="submit"
-          disabled={isLoading || !query.trim()}
-          className="absolute right-3 bottom-1.5 text-gray-400 hover:text-white focus:outline-none
-                   p-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-orange-500
-                   transition-colors duration-200"
-        >
-          {isLoading ? (
-            <LoadingSpinner size="sm" color="white" />
-          ) : (
-            <ArrowUp className="w-4 h-4 text-white" />
-          )}
-        </button>
-      </div>
-      
-      {/* Optional helper text */}
-      <div className="mt-1 text-xs text-gray-400 text-center">
-        Press Enter to submit, Shift + Enter for new line
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {query && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/80 transition-colors"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  className="h-4 w-4"
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+                <span className="sr-only">Clear input</span>
+              </button>
+            )}
+            
+            <button
+              type="submit"
+              disabled={isLoading || !query.trim()}
+              className="h-8 w-8 rounded-lg flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              {isLoading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+              ) : (
+                <ArrowUp className="h-5 w-5" />
+              )}
+              <span className="sr-only">Submit</span>
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   );
